@@ -1,0 +1,99 @@
+<style type="text/css">
+	#wholetable { display: table; width: 100%; }
+	#wholerow { display: table-row; }
+	#wholecellleft { display: table-cell; width: 30%; }
+	#wholecellright { display: table-cell; width: 70%; }
+	label { margin-left: 5px; }
+	.k-datetimepicker { margin-left: 0px; }
+	.k-scheduler-edit-form .k-edit-field { width: 100%; }
+</style>
+
+<script id="customEditorTemplate" type="text/x-kendo-template">
+    #var options = jQuery("\#scheduler").data("kendoScheduler").options;#
+    #var timeFormat = options.userPreferences.userTimeFormat;#
+    #var dateFormat = options.userPreferences.userDateFormat;#
+	<div id="wholetable">
+		<div id="wholerow">
+			<div id="wholecellleft">
+				<div class="k-edit-label">
+					<label for="title">#:options.translations.Comm_Subject#:</label>
+				</div>
+			</div>
+			<div id="wholecellright">
+				<div data-container-for="title" class="k-edit-field">
+					<input type="text" class="k-input k-textbox" name="title" id="event-title" required="required" data-bind="value:title">
+				</div>
+			</div>
+		</div>
+		<div id="wholerow">
+			<div id="wholecellleft">
+				<div class="k-edit-label">
+					<label id="start-label" for="start">#:options.translations.StartTime#</label>
+				</div>
+			</div>
+			<div id="wholecellright">
+				<div data-container-for="start" class="k-edit-field">
+					<input type="text"
+						data-role="datetimepicker"
+						data-interval="15"
+						data-format="#:dateFormat# #:timeFormat#"
+						data-type="date"
+						data-bind="value:start,invisible:isAllDay"
+						name="start"
+						id="event-start"
+					/>
+					<input type="text" data-type="date" data-role="datepicker" data-bind="value:start,visible:isAllDay" name="start"/>
+					<span data-bind="text: startTimezone"></span>
+					<span data-for="start" class="k-invalid-msg" style="display: none;"></span>
+				</div>
+			</div>
+		</div>
+		<div id="wholerow">
+			<div id="wholecellleft">
+				<div class="k-edit-label">
+					<label id="start-label" for="end">#:options.translations.EndTime#</label>
+				</div>
+			</div>
+			<div id="wholecellright">
+				<div data-container-for="end" class="k-edit-field">
+					<input type="text" data-type="date" data-role="datetimepicker" data-format="#:dateFormat# #:timeFormat#" data-bind="value:end,invisible:isAllDay" name="end" id="event-end" data-datecompare-msg="#:options.translations.EndTimeLess#" />
+					<input type="text" data-type="date" data-role="datepicker" data-bind="value:end,visible:isAllDay" name="end" data-datecompare-msg="#:options.translations.EndTimeLess#" />
+					<span data-bind="text: endTimezone"></span>
+					<span data-bind="text: startTimezone, invisible: endTimezone"></span>
+					<span data-for="end" class="k-invalid-msg" style="display: none;"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$("\\#event-start").kendoDateTimePicker({
+			timeFormat: "#:timeFormat#"
+		});
+		$("\\#event-end").kendoDateTimePicker({
+			timeFormat: "#:timeFormat#"
+		});
+    
+    
+    /**
+    ** Event listeners for edit event
+    **/    
+    $( "\\#event-start" ).change(function(e) {
+           
+      var thirtyMinutes = 1800000;
+      var startDatetimepicker = $("\\#event-start").data("kendoDateTimePicker");
+      var startTime = startDatetimepicker.value();
+      var startTimeVal = startTime.getTime();
+      var endTimeVal = startTimeVal+thirtyMinutes;
+      var endTime = new Date(endTimeVal);
+      
+      var endDatetimepicker = $("\\#event-end").data("kendoDateTimePicker");
+      endDatetimepicker.value(endTime);  
+      endDatetimepicker.trigger("change");	  
+    });
+
+    $( "\\#event-end" ).change(function(e) {
+      //Nothing to do here.
+      
+    });
+	<\/script>
+</script>

@@ -1,0 +1,79 @@
+# Compiled files and binaries #
+###############################
+*.dll
+*.exe
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+
+# Various Folders #
+###################
+ckeditor/
+CustomDotNet/
+CustomPages/Enbu/
+CustomPages - backup 120716/
+Examples/
+FileEmailScreen/
+FusionCharts/
+GWT/
+Help/
+Img/
+InteractiveDashboard/
+js/analytics/
+js/app/
+js/crm/
+js/calendar
+
+#################
+js/crmJSAPI/
+js/docs/
+js/lib/
+js/se/
+js - backup 120716/
+mobile/
+Plugin/
+Reports/
+SmartPhone/
+StaticContent/
+swfobject/
+tablet/
+Temp/
+Themes/
+Training/
+
+
+eWareWebService.asp
+eware.css
+LogonTranslations.txt
+custom.xml
+index.htm
+web.config
+wsCompany.js
+increaseCrmDebug.js
+lodash.js

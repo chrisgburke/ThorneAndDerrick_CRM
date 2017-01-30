@@ -1,0 +1,13 @@
+<script id="event-time-template" type="text/x-kendo-template">    
+    #if(data.isAllDay) {#
+      #=this.options.messages.allDay#
+      #} else if(data.isTask && this.options.userPreferences.useAMPM) {#
+        #=kendo.format("{0:t}",start)#
+      #} else if(data.isTask && !this.options.userPreferences.useAMPM) {#
+        #=kendo.format("{0:HH:mm}",start)#
+      #}  else if(!this.options.userPreferences.useAMPM) {#
+        #=kendo.format("{0:HH:mm}-{1:HH:mm}",start, end)#
+      #} else { #
+      #=kendo.format(format, start, end)#
+      #} #
+</script>

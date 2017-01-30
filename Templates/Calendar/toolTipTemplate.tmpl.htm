@@ -1,0 +1,54 @@
+<script id="tooltip-template" type="text/x-kendo-template">
+
+
+<table style="width:100%;border: none;" id="sagecal-tooltip-template">
+ <tr class="k-tooltip-row">
+    <td colspan="2" class="k-tooltip-header">#=title#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.start#:</td>
+    <td class="k-tooltip-right-content">#=startTime#</td> 
+  </tr>
+  <tr class="k-tooltip-row k-tooltip-separator">
+    <td class="k-tooltip-left-content">#=translations.end#:</td>
+    <td class="k-tooltip-right-content">#=endTime#</td> 
+  </tr>
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.details#:</td>
+    <td class="k-tooltip-right-content">#=description#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.company#:</td>
+    <td class="k-tooltip-right-content">#=company#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.person#:</td>
+    <td class="k-tooltip-right-content">#=person#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.phone#:</td>
+    <td class="k-tooltip-right-content"><a href="tel:#=phoneNo#">#=phoneNo#</a></td> 
+  </tr>
+
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.location#:</td>
+    <td class="k-tooltip-right-content">#=location#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    <td class="k-tooltip-left-content">#=translations.organizer#:</td>
+    <td class="k-tooltip-right-content">#=organiser#</td> 
+  </tr>
+  
+  <tr class="k-tooltip-row">
+    
+    <td colspan="2" class="k-tooltip-more-details"><a id="event-url" href="#: appointmentViewUrl#" onclick="SageCRM.wsTargetLists.SendStatsToGoogle('Calendar', 'CalendarTooltipMoreDetails', 'CalendarTooltipMoreDetails event occured.');return true;">#=translations.drilldown#</a></td> 
+  </tr>
+  
+</table>  
+
+</script>

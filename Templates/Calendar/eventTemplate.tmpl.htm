@@ -1,0 +1,58 @@
+<script id="event-template" type="text/x-kendo-template">
+
+ # if(params.meta.isNotVisible) { # 
+  <span class="event-busy"><strong>#=params.meta.translations.busy#</strong></span>
+ # } #
+
+ <!-- If the duration is 60 mins or greater add linebreaks -->
+ # var br = ""; var cssClass = ""; var cssHidden ="sage-calendar-hidden"; var longAppt = false; var alldayEventCss = ""; var multiDayEventCss = "";#
+ #if(!params.isAllDayEvent && params.meta.record.duration() >= 3600000) {br = "<br>"; cssClass="sage-event-newline"; cssHidden = ""; longAppt = true;}  #
+ <!-- Add css class for non-allday multiday events to fix issue with text overlapping arrow -->
+ #if(!params.meta.sameDayEvent && !params.isAllDayEvent && params.meta.record.duration() <= 86400000) {multiDayEventCss = "sage-multi-day-event";}#
+ #if(params.isAllDayEvent || params.meta.record.duration() >= 86400000){br = ""; params.isAllDayEvent = true; alldayEventCss = "sage-allday-event";}#
+ # if(!params.isNewEvent && !params.meta.isNotVisible) { #
+  
+    <div class="sagecal-template #=alldayEventCss# #=multiDayEventCss#"; style="height: 100%";>
+     
+      <a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" id="event-url" href="#: params.meta.appointmentViewUrl#">#=SageCRM.responsiveCalendarUtils.getActionTypeIcon(action)#</a>      
+      # if (params.meta.isRecurrenceEvent) { # <a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" href="#: params.meta.appointmentViewUrl#"><span class="sage-calendar-icon sage-calendar-recurring-app"></span></a> # } # 
+      # if(params.viewName.toUpperCase() === "DAY"){ #
+      
+        <!-- Over 90 mins every record has a line -->
+        <!-- Under 60 mins every everything is displayed on one line -->
+        <!-- 60 - 90 mins company and person shall be on the same line -->
+        # if(!params.isAllDayEvent) { #<span id="event-time" class="sage-template grid-cell">#: params.formatDate(longAppt) #</span> # } #
+        
+        <span id="event-title"  class="sage-template grid-cell">#: params.formatTitle() # # if (commType == "Task"){# - #:description# #} #</span> 
+		
+		# if(params.meta.company != null) { ##=br#<a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" href='#: params.meta.companyURL #'><span id="event-company" class="sage-template grid-cell #=cssClass#">#: params.meta.company #</span></a> # } #
+        # if(params.meta.contact != null) { # # if(!params.isAllDayEvent && params.meta.record.duration() > 5400000) { ##=br## } else if(!params.isAllDayEvent){#&nbsp; #}#<a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" href='#: params.meta.contactURL #'><span id="event-contact"  class="#if(params.meta.record.duration() > 5400000){# sage-template grid-cell  #}# #=cssClass#">#: params.meta.contact #</span></a> # } #
+        
+        # if(params.meta.organiser != null) { ##=br#<span id="event-organiser" class="sage-template grid-cell #=cssClass# #=alldayEventCss#">#: params.meta.organiser #</span> # } #
+        
+      # } else if(params.viewName.toUpperCase() === "WORKWEEK"){ # <!-- end params.viewName === "DAY" -->
+        # if(!params.isAllDayEvent) { #<span id="event-time" class="sage-template grid-cell">#: params.formatDate(longAppt) #</span> #=br## } #
+        <span id="event-title"  class="sage-template grid-cell #=cssClass#">#: params.formatTitle() #</span>
+		
+        # if(params.meta.company != null) {##=br#<a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" class="#=cssHidden#" href='#: params.meta.companyURL #'><span id="event-company"  class="sage-template grid-cell #=cssClass# #=cssHidden# #=alldayEventCss#">#: params.meta.company.substring(0,Math.min(params.meta.company.length,20)) #</span></a> # } #
+      
+      # } else if(params.viewName.toUpperCase() === "WEEK"){ # <!-- end params.viewName === "WORKWEEK" -->
+          # if(!params.isAllDayEvent) { #<span id="event-time" class="sage-template grid-cell">#: params.formatDate(longAppt) #</span> #=br## } #
+          <span id="event-title"  class="sage-template grid-cell #=cssClass#">#: params.formatTitle() #</span>
+		  
+          # if(params.meta.company != null) {##=br#<a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" class="#=cssHidden#" href='#: params.meta.companyURL #'><span id="event-company"  class="sage-template grid-cell #=cssClass# #=cssHidden# #=alldayEventCss#">#: params.meta.company.substring(0,Math.min(params.meta.company.length,20)) #</span></a> # } #
+      # } else if( params.viewName.toUpperCase() === "AGENDA") { # <!-- end params.viewName === "WEEK" -->
+		  <a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" href="#: params.meta.appointmentViewUrl#"><span id="event-title"  class="sage-template grid-cell #if(isOverdue){#task-overdue#}#">#: params.formatTitle() #</span></a>      
+      # } else if( params.viewName.toUpperCase() === "TASKLIST") { #
+      <a onclick="SageCRM.responsiveCalendarUtils.navigateLink();" href="#: params.meta.appointmentViewUrl#"><span id="event-title"  class="sage-template grid-cell">#: params.formatTitle() #</span></a>
+	    # } else {# <!-- end params.viewName === "TASKLIST" -->
+        
+        # if(!params.isAllDayEvent) { #<span id="event-time" class="sage-template grid-cell">#: params.formatDate() #</span> # } #
+        <span id="event-title"  class="sage-template grid-cell"><b>#: title #</b># if (commType == "Task"){# - #:description# #} #</span> 
+      # } #
+	  
+    </div>
+    
+  # } # <!-- end !event.isNewEvent-->
+</script>
+
