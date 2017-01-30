@@ -17,6 +17,10 @@ function ValidateAndSave(orig) {
 
 function ValidateMandatoryFields() {
 
+    var compValidation = false;
+    var persValidation = false;
+    var persEmaiValidation = false;
+
     var fieldsList_Comp = {
         columnPrefix: "comp",
         fields: [
@@ -26,47 +30,54 @@ function ValidateMandatoryFields() {
             { fieldName: "country", validate: "" }
         ]
     }
-    var compValidation = increaseFieldValidationHelper.validate(fieldsList_Comp);//, standardValidateOK, standardValidateError); 
-    
-    var fieldsList_Pers = {
-        columnPrefix: "pers",
-        fields: [
-            { fieldName: "firstname", validate:"" },
-            { fieldName: "lastname", validate:"" }
-        ]
+    compValidation = increaseFieldValidationHelper.validate(fieldsList_Comp);//, standardValidateOK, standardValidateError); 
+
+    if ($("#pers_firstname").length > 0) {
+        var fieldsList_Pers = {
+            columnPrefix: "pers",
+            fields: [
+                { fieldName: "firstname", validate: "" },
+                { fieldName: "lastname", validate: "" }
+            ]
+        }
+        persValidation = increaseFieldValidationHelper.validate(fieldsList_Pers);//, standardValidateOK, standardValidateError);
+    } else {
+        persValidation = true;
     }
-    var persValidation = increaseFieldValidationHelper.validate(fieldsList_Pers);//, standardValidateOK, standardValidateError);
-    
-    var fieldsList_PersEmai = {
-        columnPrefix: "persEmai",
-        fields: [
-            { fieldName: "EmailAddressBusiness", validate:"" }            
-        ]
-    }
-    var persEmaiValidation = increaseFieldValidationHelper.validate(fieldsList_PersEmai, emailValidateOK, emailValidateError);
-    if(persEmaiValidation){
-       persEmaiValidation = ValidateEmailValid("persEmai_EmailAddressBusiness");
-       if(persEmaiValidation){
-           emailValidateOK("");
-       }else{
-           emailValidateError("");
-       }
+    if ($("#persEmai_EmailAddressBusiness").length > 0) {
+        var fieldsList_PersEmai = {
+            columnPrefix: "persEmai",
+            fields: [
+                { fieldName: "EmailAddressBusiness", validate: "" }
+            ]
+        }
+        var persEmaiValidation = increaseFieldValidationHelper.validate(fieldsList_PersEmai, emailValidateOK, emailValidateError);
+        if (persEmaiValidation) {
+            persEmaiValidation = ValidateEmailValid("persEmai_EmailAddressBusiness");
+            if (persEmaiValidation) {
+                emailValidateOK("");
+            } else {
+                emailValidateError("");
+            }
+        }
+    } else {
+        persEmaiValidation = true;
     }
     return compValidation && persValidation && persEmaiValidation;
 
 }
 
-function emailValidateOK(fieldName){
-   $("#persEmai_EmailAddressBusiness").parent().parent().children("td:first").css("color", "");
+function emailValidateOK(fieldName) {
+    $("#persEmai_EmailAddressBusiness").parent().parent().children("td:first").css("color", "");
 }
 
-function emailValidateError(fieldName){
+function emailValidateError(fieldName) {
     $("#persEmai_EmailAddressBusiness").parent().parent().children("td:first").css("color", "red");
 }
 
 
-function ValidateEmailValid(field){
-   var isValidEmail = crm.validateEmail(field);
-   
-   return isValidEmail;
+function ValidateEmailValid(field) {
+    var isValidEmail = crm.validateEmail(field);
+
+    return isValidEmail;
 }
