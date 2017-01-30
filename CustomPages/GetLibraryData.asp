@@ -11,13 +11,13 @@ if(DebugOn())
 var reponseText = "";
 var basePath = CleanQueryStringValue("basePath");
 if(HasValue(basePath)){
-    var sqlStr = "select Parm_Value from Custom_Sysparams where parm_name = 'DocStore'";
+    var sqlStr = "select Parm_Value from Custom_Sysparams where parm_name = 'RelativeDocPath'";
     var sysParamQry = CRM.CreateQueryObj(sqlStr);
 	sysParamQry.SelectSql();
 	while(!sysParamQry.eof){
 
         var path = sysParamQry("parm_value");
-        responseText = path;                  
+        responseText = path;                
 		sysParamQry.NextRecord();
 	}    
     
