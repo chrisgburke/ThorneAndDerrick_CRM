@@ -23,7 +23,7 @@ $(document).ready(function(){
               var cellHtml = this.getCellHtml(rowIndex, fileNameColumnIndex).trim();
               var libraryid = extractLibraryId(cellHtml);
               var directory = getDocumentDirectory(libraryid);
-              crm.grids(0).setCellHtml(rowIndex, copyColumnIndex, "<a class='WEBLINK' target='EWAREVISITS' data-clipboard-text='" + PutOnClipboard(baseFilePath, directory, celltext) +"' href='javascript:DoNothing()'>Copy</a>");
+              crm.grids(0).setCellHtml(rowIndex, copyColumnIndex, "<a class='WEBLINK' target='EWAREVISITS' data-clipboard-text='" + PutOnClipboard(baseFilePath, directory, celltext) +"' href='javascript:CopyToClipboard()'>Copy</a>");
           }
         }
     });
@@ -58,8 +58,8 @@ function PutOnClipboard(baseFilePath, libraryFolder, fileName){
     return baseFilePath + libraryFolder + "\\" + fileName;
 }
 
-function DoNothing(){
-
+function CopyToClipboard(){
+//does nothing - just a placeholder....
 }
 
 function extractLibraryId(cellHtml){
