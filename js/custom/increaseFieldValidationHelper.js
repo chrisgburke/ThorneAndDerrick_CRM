@@ -16,8 +16,9 @@ string in which to interpolate the actual field name in order to determine the n
 to check for values.  If this isn't provided then it'll be set the same as the field name.
 */
 
-increaseFieldValidationHelper = (function () {
+increaseFieldValidationHelper = (function (s) {
 
+	this._serverName = s;
 	var validatePrivate = function (fl, onOK, onError) {
 		var bOk = true;
 		var counter = 0;
@@ -75,7 +76,22 @@ increaseFieldValidationHelper = (function () {
 		}
 	};
 
-	return {
-		validate: validatePrivate
+	function serverName() {
+		//return server = crm.installUrl().split('/')[3];
+		return this._serverName;
 	};
-})();
+
+	function makeErrorContentPrivate(fieldName) {
+		 return "<img id='reqd" + fieldName + "' src='/" + serverName() +"/Themes/img/ergonomic/Bullets/Required.gif' border='0' align='MIDDLE'>";
+	};
+
+	function makeRequiredAsteriskFlagPrivate(){
+    	return "<span class='VIEWBOXNOBG'><font color='blue'>*</font></span>";
+	};
+
+	return {
+		validate: validatePrivate,
+		makeErrorContent : makeErrorContentPrivate,
+		makeRequiredAsteriskFlag: makeRequiredAsteriskFlagPrivate
+	};
+})(crm.installUrl().split('/')[3]);

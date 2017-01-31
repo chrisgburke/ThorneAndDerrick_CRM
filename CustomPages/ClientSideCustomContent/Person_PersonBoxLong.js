@@ -1,14 +1,44 @@
+var PersonBoxLongGlobal = {};
+
 $(document).ready(function () {
 
-    $("#StandardForm table:eq(0) > tbody:eq(0) > tr:eq(8)").hide();
+    if ($("#persEmai_EmailAddressBusiness").length > 0) {
 
-    // increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Save", "ValidateAndSave");
-    // if ($("#persEmai_EmailAddressBusiness").length > 0) {
-    //     $("#persEmai_EmailAddressBusiness").parent().after(increaseFieldValidationHelper.makeRequiredAsteriskFlag());
-    // }
+        PersonBoxLongGlobal.emailElement = "#persEmai_EmailAddressBusiness";
+        PersonBoxLongGlobal.emailAddressField = "persEmai_EmailAddressBusiness";
+        PersonBoxLongGlobal.emailFieldPrefix = "persEmai";
+        PersonBoxLongGlobal.emailFieldName = "EmailAddressBusiness";
+    }
+
+    if ($("#emai_emailaddressbusiness").length > 0 && $("#emai_emailaddressbusiness").is(":visible")) {
+
+        PersonBoxLongGlobal.emailElement = "#emai_emailaddressbusiness";
+        PersonBoxLongGlobal.emailAddressField = "emai_emailaddressbusiness";
+        PersonBoxLongGlobal.emailFieldPrefix = "emai";
+        PersonBoxLongGlobal.emailFieldName = "emailaddressbusiness";
+    }
+
+    increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Save", "ValidateAndSave");
+    if ($(PersonBoxLongGlobal.emailElement).length > 0) {
+        $(PersonBoxLongGlobal.emailElement).parent().after(increaseFieldValidationHelper.makeRequiredAsteriskFlag());
+    }
+
+    //if we have emai_emailaddressprivate then remove it...
+    if ($("#emai_emailaddressprivate").length > 0) {
+        $("#emai_emailaddressprivate").parent().parent().hide();
+    }
+
+    //do we know if we're in a popup?
+    if (crm.getArg("PopupWin", crm.url()) === "Y") {
+        resizePopup();
+    }
 });
 
-/*
+function resizePopup() {
+    var w = $(window), d = $(document), b = $('body');
+    window.resizeBy( ((screen.availWidth - w.width()) - 500), 0);
+}
+
 function ValidateAndSave(orig) {
 
     if (ValidateMandatoryFields()) {
@@ -55,20 +85,20 @@ function ValidateMandatoryFields() {
     } else {
         persValidation = true;
     }
-    if ($("#persEmai_EmailAddressBusiness").length > 0) {
+    if ($(PersonBoxLongGlobal.emailElement).length > 0) {
         var fieldsList_PersEmai = {
-            columnPrefix: "persEmai",
+            columnPrefix: PersonBoxLongGlobal.emailFieldPrefix,
             fields: [
-                { fieldName: "EmailAddressBusiness", validate: "" }
+                { fieldName: PersonBoxLongGlobal.emailFieldName, validate: "" }
             ]
         }
         var persEmaiValidation = increaseFieldValidationHelper.validate(fieldsList_PersEmai, standardValidateOK, emailValidateError);//emailValidateOK, emailValidateError);
         if (persEmaiValidation) {
-            persEmaiValidation = ValidateEmailValid("persEmai_EmailAddressBusiness");
+            persEmaiValidation = ValidateEmailValid(PersonBoxLongGlobal.emailAddressField);
             if (persEmaiValidation) {
-                standardValidateOK("persEmai_EmailAddressBusiness");
+                standardValidateOK(PersonBoxLongGlobal.emailAddressField);
             } else {
-                emailValidateError("persEmai_EmailAddressBusiness");
+                emailValidateError(PersonBoxLongGlobal.emailAddressField);
             }
         }
     } else {
@@ -104,4 +134,3 @@ function ValidateEmailValid(field) {
 
     return isValidEmail;
 }
-//*/
