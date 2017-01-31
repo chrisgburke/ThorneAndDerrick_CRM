@@ -48,6 +48,15 @@ var increaseCrmLib = {
 		xmlHttp = null;
 		return strResponse;
 	},
+	MakeSimpleAsyncAjaxRequest: function(url, successFn, errorFn) {
+		$.ajax({
+			url: url,
+			dataType: 'text',
+			success: successFn,
+			error: errorFn,
+			type: 'GET'
+		});		
+	},
 	ReplaceSaveButtonClickMethod: function(btnName, saveName) {
 		var _newMethod = 'CustomSave';
 		if(typeof(saveName) != 'undefined') {
