@@ -16,17 +16,6 @@ if(HasValue(basePath)){
 		var path = qry("parm_value");
         responseText = path;                
 	});
-
-	/*
-    var sysParamQry = CRM.CreateQueryObj(sqlStr);
-	sysParamQry.SelectSql();
-	while(!sysParamQry.eof){
-
-        var path = sysParamQry("parm_value");
-        responseText = path;                
-		sysParamQry.NextRecord();
-	} 
-	//*/   
     
 }
 
@@ -37,17 +26,6 @@ if(HasValue(librID)){
 		var path = qry("Libr_FilePath");
         responseText = path;                  
 	});
-
-	/*
-    var librQry = CRM.CreateQueryObj(sqlStr);
-	librQry.SelectSql();
-	while(!librQry.eof){
-
-        var path = librQry("Libr_FilePath");
-        responseText = path;                  
-		librQry.NextRecord();
-	} 
-	//*/   
 }
 
 Response.Write(responseText);
