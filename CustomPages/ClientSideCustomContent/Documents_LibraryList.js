@@ -55,6 +55,9 @@ $(document).ready(function(){
 
 function PutOnClipboard(baseFilePath, libraryFolder, fileName){
     //var strArr = fileName.split('eware.dll/');
+    if(libraryFolder.slice(-1) === "\\"){
+        libraryFolder = libraryFolder.substr(0, libraryFolder.length - 1);
+    }
     return baseFilePath + libraryFolder + "\\" + fileName;
 }
 
