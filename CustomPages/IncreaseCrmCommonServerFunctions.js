@@ -36,4 +36,13 @@ function CleanQueryStringValue(key){
 	}
 	return thing;
 }
+
+function RunQuery(sqlString, processFn) {
+    var qry = CRM.CreateQueryObj(sqlString);
+    qry.SelectSql();
+    while(!qry.eof){
+        processFn(qry);
+        qry.NextRecord();
+    }
+}
 %>

@@ -12,6 +12,12 @@ var reponseText = "";
 var basePath = CleanQueryStringValue("basePath");
 if(HasValue(basePath)){
     var sqlStr = "select Parm_Value from Custom_Sysparams where parm_name = 'RelativeDocPath'";
+	RunQuery(sqlStr, function(qry){
+		var path = qry("parm_value");
+        responseText = path;                
+	});
+
+	/*
     var sysParamQry = CRM.CreateQueryObj(sqlStr);
 	sysParamQry.SelectSql();
 	while(!sysParamQry.eof){
@@ -19,13 +25,20 @@ if(HasValue(basePath)){
         var path = sysParamQry("parm_value");
         responseText = path;                
 		sysParamQry.NextRecord();
-	}    
+	} 
+	//*/   
     
 }
 
 var librID = CleanQueryStringValue("librID");
 if(HasValue(librID)){
     var sqlStr = "select Libr_FilePath from Library where Libr_Libraryid = " + librID;
+	RunQuery(sqlStr, function(qry){
+		var path = qry("Libr_FilePath");
+        responseText = path;                  
+	});
+
+	/*
     var librQry = CRM.CreateQueryObj(sqlStr);
 	librQry.SelectSql();
 	while(!librQry.eof){
@@ -33,7 +46,8 @@ if(HasValue(librID)){
         var path = librQry("Libr_FilePath");
         responseText = path;                  
 		librQry.NextRecord();
-	}    
+	} 
+	//*/   
 }
 
 Response.Write(responseText);
