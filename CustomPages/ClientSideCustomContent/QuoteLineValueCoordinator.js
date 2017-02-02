@@ -1,5 +1,6 @@
-var quoteLineValueCoordinator = (function () {
+var quoteLineValueCoordinator = (function (carriageFamName) {
 
+    var _carriageFamName;
     var _quantity = 0;
     var _salesprice = 0;
     var _costPrice = 0;
@@ -12,6 +13,7 @@ var quoteLineValueCoordinator = (function () {
     var _currencySymbol = "";
     var _profitMarginPercentage = 0;
     var _profitValue = 0;
+    var _thisIsCarriage = false;
 
     var clearValuesPrivate = function () {
         _quantity = 0;
@@ -23,6 +25,7 @@ var quoteLineValueCoordinator = (function () {
     };
 
     var setValuesPrivate = function (line) {
+        _carriageFamName = "29" //this is where this value LIVES!
         _quantity = line.quantity;
         _salesprice = line.salesPrice;
         _costPrice = line.costPrice;
@@ -31,6 +34,10 @@ var quoteLineValueCoordinator = (function () {
         _lineTotalProtected = 0.00;
         _currencySymbol = line.currencySymbol;
         _currencyID = line.currencyID;
+        _thisIsCarriage = false;
+        if(line.productFamily== _carriageFamName){
+            _thisIsCarriage = true;
+        }
     };
 
     var getCurrencyPrivate = function () {
@@ -91,14 +98,18 @@ var quoteLineValueCoordinator = (function () {
     };
 
     var getProfitPercentPrivate = function () {
+        _profitValue = 0;
+        _profitMarginPercentage = 0;
 
-        var profitValue = getProfitValuePrivate();
-        _profitValue = profitValue;
+        if (!_thisIsCarriage) {
+            var profitValue = getProfitValuePrivate();
+            _profitValue = profitValue;
 
-        if (_lineTotalProtected > 0) {
-            _profitMarginPercentage = ((profitValue / _lineTotalProtected) * 100).toFixed(2);
-        } else {
-            _profitMarginPercentage = parseFloat(0).toFixed(2);
+            if (_lineTotalProtected > 0) {
+                _profitMarginPercentage = ((profitValue / _lineTotalProtected) * 100).toFixed(2);
+            } else {
+                _profitMarginPercentage = parseFloat(0).toFixed(2);
+            }
         }
     };
 

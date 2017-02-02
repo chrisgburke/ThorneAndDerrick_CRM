@@ -55,6 +55,47 @@ Quote Items
 For some reason the form works differently here than it does at marian doors; the form does not submit each time a Prod Family or Product is slected, so we have to
 handle the SSA change.
 
+Field changes:  REMEMBER TO DISABLE THE TABLE SCRIPT BEFORE YOU DO ANYTHING.
+
+Create the following Currency Fields:
+
+quit_itemlinediscount   ("Item Line Discount")
+quit_linetotalnet       ("Line Total Net")
+quit_linetotalgross     ("Gross")
+
+The itemlinediscount and linetotalnet fields go on the QuoteItemSummary and QuoteFreeTextItemSummary screens.
+
+quit_linetotalgross is for display purposes only and is updated by the tablescript (linetotal + vat).
+
+The existing "quit_quotedpricetotal" field is actually given the *net* value by the tablescript so it totals up properly.
 
 
+QuoteFreeTextItemSummary requires the following Custom Content:
 
+    <script src='../CustomPages/ClientSideCustomContent/QuoteItems_QuoteLineCommon.js'></script>
+    <script src='../CustomPages/ClientSideCustomContent/QuoteLineValueCoordinator.js'></script>
+
+QuoteItemsSummary requires the following Custom Content:
+
+    <script src='../CustomPages/ClientSideCustomContent/QuoteItems_QuoteItemsSummary.js'></script>
+    <script src='../CustomPages/ClientSideCustomContent/QuoteItems_QuoteLineCommon.js'></script>
+    <script src='../CustomPages/ClientSideCustomContent/QuoteLineValueCoordinator.js'></script>
+
+
+Quote Items :  create a tablescript called "CalculateLine":
+
+function InsertRecord() {
+QuoteItems_CalculateLine_InsertRecord();
+}
+
+function PostInsertRecord(){
+QuoteItems_CalculateLine_PostInsertRecord();
+}
+
+function UpdateRecord() {
+QuoteItems_CalculateLine_UpdateRecord();
+}
+
+function DeleteRecord(){
+QuoteItems_CalculateLine_DeleteRecord();
+}

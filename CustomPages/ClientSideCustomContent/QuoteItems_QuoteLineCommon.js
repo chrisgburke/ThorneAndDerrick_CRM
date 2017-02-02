@@ -8,9 +8,21 @@ $(document).ready(function(){
 
 });
 
-function PerformLineCalculations() {
-    var line = {};
+function OnProductFamilySelectedCommon(){
+ var parentEntryForm = getParentEntryForm('quit_productfamilyid');
+    if(parentEntryForm.quit_productfamilyid.value != ''){
+        var fam = $("#_HIDDENquit_productfamilyidTEXT").val();
+        PerformLineCalculations(fam);
+    }
+}
 
+function PerformLineCalculations(fam) {
+    var line = {};
+    if (fam) {
+        line.productFamily = fam;
+    } else {
+        line.productFamily = $("#_HIDDENquit_productfamilyidTEXT").val();
+    }
     line.quantity = coalesceZero(crm.fields("quit_quantity").val(), 0);
     line.salesPrice = coalesceZero(crm.fields("quit_salesprice").val(), 2);
     line.costPrice = coalesceZero(crm.fields("quit_cost").val(), 2);

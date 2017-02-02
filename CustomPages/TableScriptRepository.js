@@ -116,6 +116,7 @@ function CalculateLineValues() {
     //writeToFile("Quantity = " + quantity);
 
     var salesprice = Values("quit_salesprice");
+    var salespriceCID = Values("quit_salesprice_cid");
     //writeToFile("Sales Price = " + salesprice);
 
     var vatRate = GetVatRate(coalesceZero(Values("quit_vatrate"), 0));
@@ -132,7 +133,12 @@ function CalculateLineValues() {
     //writeToFile(quotedPriceTotalNet);
 
     //line total (gross) is just the net + vat, as they are both already discounted:
-    Values("quit_quotedpricetotal") = (parseFloat(quotedPriceTotalNet) + parseFloat(vatAmt)).toFixed(2);
+    Values("quit_linetotalgross") = (parseFloat(quotedPriceTotalNet) + parseFloat(vatAmt)).toFixed(2);
+    Values("quit_linetotalgross_cid") = salespriceCID;
+
+    //quit_quotedpricetotal gets the discounted net value to participate in the 'Quote Total' on the opportunity:
+    Values("quit_quotedpricetotal") = quotedPriceTotalNet;
+    Values("quit_quotedpricetotal_cid") = salespriceCID;
 
     //writeToFile("We have calculated the line total to be : " + Values("quit_quotedpricetotal"));
 }
@@ -143,7 +149,7 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
     var lineTotalSum = 0;
     var cogsSum = 0;
     var profitValueCID = 0;
-    var sql = "SELECT quit_cost, quit_quantity, quit_linetotalnet, quit_profitvalue, quit_profitvalue_cid from QuoteItems with (NOLOCK) where quit_orderquoteid=" + quoteID;
+    var sql = "SELECT quit_productfamilyid, quit_cost, quit_quantity, quit_linetotalnet, quit_profitvalue, quit_profitvalue_cid from QuoteItems with (NOLOCK) where quit_orderquoteid=" + quoteID;
     sql += " and quit_deleted IS NULL";
     if (typeof whereClauseFunction === "function"){ 
         sql += whereClauseFunction();
@@ -152,20 +158,24 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
 
     RunQuery(sql, function (qry) {
 
-        var lineProfitValue = Number(qry("quit_profitvalue"));
-       
-        profitValuesTotal += lineProfitValue;//parseFloat(coalesceZero(qry("quit_profitvalue"), 2)).toFixed(2);
-        //writeToFile("profitValuesTotal is a " + typeof profitValuesTotal);
+        var productFamily = qry("quit_productfamilyid");
+        if(productFamily != "23"){
+            var lineProfitValue = Number(qry("quit_profitvalue"));
+            if(isNaN(lineProfitValue)){
+                lineProfitValue = 0;
+            }
+            profitValuesTotal += lineProfitValue;
 
-        lineTotalSum += Number(qry("quit_linetotalnet"));
-        
-        cogsSum += (Number(qry("quit_cost")) * Number(qry("quit_quantity")));
+            lineTotalSum += Number(qry("quit_linetotalnet"));
+            if(isNaN(lineTotalSum)){
+                lineTotalSum  = 0;
+            }
+            
+            cogsSum += (Number(qry("quit_cost")) * Number(qry("quit_quantity")));
 
-        profitValueCID = parseInt(coalesceZero(qry("quit_profitvalue_cid"), 0));
-    });
-
-    //writeToFile("lineTotalSum = " + lineTotalSum);
-    //writeToFile("cogsSUm = " + cogsSum);
+            profitValueCID = parseInt(coalesceZero(qry("quit_profitvalue_cid"), 0));
+        }
+    });   
 
     var totalProfitMargin = 0;
     if (lineTotalSum > 0) {
