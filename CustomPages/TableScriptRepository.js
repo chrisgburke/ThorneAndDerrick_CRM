@@ -30,13 +30,24 @@ function writeToFile(message) {
     }
 }
 
+function RunQuery(sqlString, processFn) {
+    var qry = CRM.CreateQueryObj(sqlString);
+    qry.SelectSql();
+    while (!qry.eof) {
+        processFn(qry);
+        qry.NextRecord();
+    }
+}
+
 //*************************
 // Entity : QuoteItems 
 // Script : CalculateLine 
 //*************************
 function QuoteItems_CalculateLine_InsertRecord() {
     try {
-        OnInsert();
+        writeToFile("***** Insert Record");
+
+        OnInsertOrUpdate(false);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -44,7 +55,7 @@ function QuoteItems_CalculateLine_InsertRecord() {
 
 function QuoteItems_CalculateLine_PostInsertRecord() {
     try {
-
+        OnLineDeleteOrAfterInsert(WhereClause, false);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -52,7 +63,8 @@ function QuoteItems_CalculateLine_PostInsertRecord() {
 
 function QuoteItems_CalculateLine_UpdateRecord() {
     try {
-        OnInsert();
+         writeToFile("***** Update Record");
+        OnInsertOrUpdate(true);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -60,34 +72,123 @@ function QuoteItems_CalculateLine_UpdateRecord() {
 
 function QuoteItems_CalculateLine_DeleteRecord() {
     try {
-
+         writeToFile("***** Delete Record");
+        OnLineDeleteOrAfterInsert(WhereClause, true);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
 }
 
-function OnInsert() {
-    var salesprice = Values("quit_salesprice");
-    writeToFile("Sales Price = " + salesprice);
+function OnInsertOrUpdate(doHeader) {
+     writeToFile("***** OnInsertOrUpdate");
 
-    var vatRate = GetVatRate(coalesceZero(Values("quit_vatrate"), 0));
-    var vatAmt = Values("quit_vatamount");
-    writeToFile("Vat Rate is " + vatRate + " and Vat Amount is " + vatAmt);
+    var quoteID = Values("quit_orderquoteid");
+    CalculateLineValues();
+    if (doHeader) {
+        CalculateQuoteHeaderProfitValues(quoteID);
+    }
+}
 
-    var discount = Values('quit_discount');
-    writeToFile("Discount =" + discount);
+
+function OnLineDeleteOrAfterInsert(whereClause, isDeleting) {
+     writeToFile("***** OnLineDeleteOrAfterInsert");
+    
+    var sql = "SELECT quit_orderquoteid FROM quoteitems with (NOLOCK) where " + whereClause;
+    writeToFile(sql);
+    var quoteID;
+    RunQuery(sql, function (qry) {
+        quoteID = qry("quit_orderquoteid");
+    });
+    if(isDeleting){
+        var quoteItemID = whereClause.split("=")[1];
+        CalculateQuoteHeaderProfitValues(quoteID, function(){
+            return " and quit_LineItemID <> " + quoteItemID;
+        })
+    }else {
+        CalculateQuoteHeaderProfitValues(quoteID);
+    }
+}
+
+function CalculateLineValues() {
+     writeToFile("***** CalculateLineValues");
 
     var quantity = Values("quit_quantity");
-    var discountPercent = Values("quit_discountpercent");
+    //writeToFile("Quantity = " + quantity);
 
-    //Values("quit_quotedpricetotal") = parseFloat(salesprice * quantity, 2);
-    writeToFile("Discount Sum = " + Values("quit_discountsum"));
+    var salesprice = Values("quit_salesprice");
+    //writeToFile("Sales Price = " + salesprice);
 
     var vatRate = GetVatRate(coalesceZero(Values("quit_vatrate"), 0));
     var vatAmt = Values("quit_vatamount");
-    writeToFile("Vat Rate is " + vatRate + " and Vat Amount is " + vatAmt);
+    //writeToFile("Vat Rate is " + vatRate + " and Vat Amount is " + vatAmt);
 
-    writeToFile("We have calculated the line total to be : " + Values("quit_quotedpricetotal"));
+    var discountPercent = Values('quit_discountpercent');
+    //writeToFile("Discount % =" + discountPercent);
+
+    var itemLineDiscount = Values("quit_itemlinediscount");
+    //writeToFile("Item Line Discount = " + itemLineDiscount);
+
+    var quotedPriceTotalNet = Values("quit_linetotalnet");
+    //writeToFile(quotedPriceTotalNet);
+
+    //line total (gross) is just the net + vat, as they are both already discounted:
+    Values("quit_quotedpricetotal") = (parseFloat(quotedPriceTotalNet) + parseFloat(vatAmt)).toFixed(2);
+
+    //writeToFile("We have calculated the line total to be : " + Values("quit_quotedpricetotal"));
+}
+
+function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
+     writeToFile("***** CalculateQuoteHeaderProfitValues");
+    var profitValuesTotal = 0;
+    var lineTotalSum = 0;
+    var cogsSum = 0;
+    var profitValueCID = 0;
+    var sql = "SELECT quit_cost, quit_quantity, quit_linetotalnet, quit_profitvalue, quit_profitvalue_cid from QuoteItems with (NOLOCK) where quit_orderquoteid=" + quoteID;
+    sql += " and quit_deleted IS NULL";
+    if (typeof whereClauseFunction === "function"){ 
+        sql += whereClauseFunction();
+    }
+    writeToFile(sql);
+
+    RunQuery(sql, function (qry) {
+
+        var lineProfitValue = Number(qry("quit_profitvalue"));
+       
+        profitValuesTotal += lineProfitValue;//parseFloat(coalesceZero(qry("quit_profitvalue"), 2)).toFixed(2);
+        //writeToFile("profitValuesTotal is a " + typeof profitValuesTotal);
+
+        lineTotalSum += Number(qry("quit_linetotalnet"));
+        
+        cogsSum += (Number(qry("quit_cost")) * Number(qry("quit_quantity")));
+
+        profitValueCID = parseInt(coalesceZero(qry("quit_profitvalue_cid"), 0));
+    });
+
+    //writeToFile("lineTotalSum = " + lineTotalSum);
+    //writeToFile("cogsSUm = " + cogsSum);
+
+    var totalProfitMargin = 0;
+    if (lineTotalSum > 0) {
+        totalProfitMargin = ((profitValuesTotal / lineTotalSum) * 100).toFixed(2);
+    }
+
+    SetValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, profitValueCID);
+}
+
+function SetValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, cid) {
+     writeToFile("***** SetValuesInQuote");
+     var a = typeof profitValuesTotal;
+     writeToFile(a + "");
+    var sql = "UPDATE Quotes SET quot_profitvalue=" + profitValuesTotal + ", ";
+    sql += "quot_profitvalue_cid=" + cid + ", ";
+    sql += "quot_profitmargin=" + totalProfitMargin + " where quot_orderquoteid=" + quoteID;
+    writeToFile("**********");
+    writeToFile(sql);
+    try {
+        CRM.ExecSql(sql);
+    } catch (e) {
+        writeToFile(e.message);
+    }
 }
 
 function GetVatRate(option) {
@@ -171,14 +272,15 @@ function CombineRefAndDescription() {
 
     var oppo = eWare.FindRecord("Opportunity", WhereClause);
     var enqReference = oppo.oppo_EnqRef;
-    var projRef = new String(oppo.oppo_ProjectReference);
+    var projRef = oppo.oppo_ProjectReference + "";
+    if (projRef === "undefined") projRef = "";
     var projRefStr = "";
-    if(projRef.length > 0){
+    if (projRef.length > 0) {
         projRefStr = " : " + projRef;
     }
     var descripStr = enqReference + projRefStr;
-    
-    writeToFile(descripStr);
+
+    //writeToFile(descripStr);
 
     var sql = 'UPDATE Opportunity SET oppo_Description =\'' + descripStr + '\' WHERE oppo_opportunityid=' + oppo.oppo_opportunityid;
     eWare.ExecSql(sql);

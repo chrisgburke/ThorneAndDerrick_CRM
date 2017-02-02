@@ -16,7 +16,7 @@ function PerformLineCalculations() {
     line.costPrice = coalesceZero(crm.fields("quit_cost").val(), 2);
     line.vatRate = GetVatRate(coalesceZero(crm.fields("quit_vatrate").val(), 0));
     line.discountPercent = coalesceZero(crm.fields("quit_discountpercent").val(), 2);
-    line.currencyID = crm.fields("quit_salesprice_CID").val();
+    line.currencyID = $("#quit_salesprice_CID option:selected").val();//$("_HIDDENquit_salesprice_CID").val();////crm.fields("quit_salesprice_CID").val();
     line.currencySymbol = $("#quit_salesprice_CID option:selected").text();
     quoteLineValueCoordinator.clearValues();
     quoteLineValueCoordinator.setValues(line);
@@ -30,39 +30,36 @@ function PerformLineCalculations() {
 
 function SetLineTotal(){
 
-    var lineTotal = quoteLineValueCoordinator.getLineTotal();
-    var strLineTotal = quoteLineValueCoordinator.formatWithCurrencySymbol(lineTotal);
+//line total net:
+    var lineTotal = quoteLineValueCoordinator.getLineTotal();   
+    setTextInDataSpan("_Dataquit_linetotalnet", lineTotal, true);
+    $("#_HIDDENquit_linetotalnet").val(lineTotal);
+    $("#_HIDDENquit_linetotalnet_CID").val(quoteLineValueCoordinator.getCurrencyID());
 
-    $("#_Dataquit_quotedpricetotal").text(quoteLineValueCoordinator.formatWithCurrencySymbol(lineTotal));
-    $("#_HIDDENquit_quotedpricetotal").val(lineTotal);
-    $("#_HIDDENquit_quotedpricetotal_CID").val(quoteLineValueCoordinator.currencyID);
-
+//line item discount:
     var lineItemDiscount = quoteLineValueCoordinator.getLineItemDiscount();
-    var strLineItemDiscount = quoteLineValueCoordinator.formatWithCurrencySymbol(lineItemDiscount);
-
-    $("#_Dataquit_discountsum").text(strLineItemDiscount);
-    $("#_HIDDENquit_discountsum").val(lineItemDiscount);
-    $("#_HIDDENquit_discountsumquit_discountsum_CID").val(quoteLineValueCoordinator.currencyID);
+    setTextInDataSpan("_Dataquit_itemlinediscount", lineItemDiscount, true);
+    $("#_HIDDENquit_itemlinediscount").val(lineItemDiscount);
+    $("#_HIDDENquit_itemlinediscount_CID").val(quoteLineValueCoordinator.getCurrencyID());
 
 }
 
 function SetVATValues(){
 
-    $("#_Dataquit_vatamount").text(quoteLineValueCoordinator.formatWithCurrencySymbol(quoteLineValueCoordinator.getTaxAmount()));
-    $("#_HIDDENquit_vatamount").val(quoteLineValueCoordinator.getTaxAmount());
+    var vatAmount = quoteLineValueCoordinator.getTaxAmount();
+    setTextInDataSpan("_Dataquit_vatamount", vatAmount, true);
+    $("#_HIDDENquit_vatamount").val(vatAmount);
 }
 
 function SetProfitValues(){
 
     var profitValue = quoteLineValueCoordinator.getProfitValue();
-    var strProfitValue = quoteLineValueCoordinator.formatWithCurrencySymbol(profitValue);
-    var profitMargin = quoteLineValueCoordinator.getProfitMargin();
-
-    $("#_Dataquit_profitvalue").text(strProfitValue);
+    setTextInDataSpan("_Dataquit_profitvalue", profitValue, true);
     $("#_HIDDENquit_profitvalue").val(profitValue);
-    $("#_HIDDENquit_profitvalue_CID").val(quoteLineValueCoordinator.currencyID);
-
-    $("#_Dataquit_profitmargin").text(profitMargin);
+    $("#_HIDDENquit_profitvalue_CID").val(quoteLineValueCoordinator.getCurrencyID());
+    
+    var profitMargin = quoteLineValueCoordinator.getProfitMargin();
+    setTextInDataSpan("_Dataquit_profitmargin", profitMargin, false);
     $("#_HIDDENquit_profitmargin").val(profitMargin);
 
 }
@@ -77,12 +74,12 @@ function GetVatRate(option) {
     }
 }
 
-function CalculateVat(line) {
+// function CalculateVat(line) {
 
-    var vatAmount = parseFloat((line.salesPrice * (line.vatRate / 100)) * line.quantity).toFixed(2);
-    $("#_Dataquit_vatamount").text(vatAmount);
-    $("#_HIDDENquit_vatamount").val(vatAmount);
-}
+//     var vatAmount = parseFloat((line.salesPrice * (line.vatRate / 100)) * line.quantity).toFixed(2);
+//     $("#_Dataquit_vatamount").text(vatAmount);
+//     $("#_HIDDENquit_vatamount").val(vatAmount);
+// }
 
 function coalesceZero(input, dp) {
     if (input == null) {
@@ -94,4 +91,16 @@ function coalesceZero(input, dp) {
     } else {
         return input;
     }
+}
+
+function setTextInDataSpan(spanID, newValue, convert) {
+    var newTextValue = "";
+    if(convert){
+        newTextValue = quoteLineValueCoordinator.formatWithCurrencySymbol(newValue);
+    }else{
+        newTextValue = newValue;
+    }
+    var your_div = document.getElementById(spanID);
+    var text_to_change = your_div.childNodes[0];
+    text_to_change.nodeValue = newTextValue;
 }
