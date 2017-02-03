@@ -64,6 +64,12 @@ function QuoteItems_CalculateLine_PostInsertRecord() {
 function QuoteItems_CalculateLine_UpdateRecord() {
     try {
          writeToFile("***** Update Record");
+
+         var profitValue = Values("quit_profitvalue");
+         var profitMargin = Values("quit_profitmargin");
+
+         forceValuesIntoDatabase(WhereClause, profitValue, profitMargin);
+         writeToFile("The profit value after update is " + Values("quit_profitvalue"));
         OnInsertOrUpdate(true);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
@@ -89,7 +95,11 @@ function OnInsertOrUpdate(doHeader) {
     }
 }
 
-
+function forceValuesIntoDatabase(whereClause, profitValue, profitMargin){
+    var updateSql = "UPDATE QuoteItems SET quit_profitvalue=" + profitValue + ", quit_profitmargin=" + profitMargin + " where " + whereClause;
+    writeToFile(updateSql);
+    CRM.ExecSql(updateSql);
+}
 function OnLineDeleteOrAfterInsert(whereClause, isDeleting) {
      writeToFile("***** OnLineDeleteOrAfterInsert");
     
@@ -105,6 +115,7 @@ function OnLineDeleteOrAfterInsert(whereClause, isDeleting) {
             return " and quit_LineItemID <> " + quoteItemID;
         })
     }else {
+        
         CalculateQuoteHeaderProfitValues(quoteID);
     }
 }
@@ -143,8 +154,71 @@ function CalculateLineValues() {
     //writeToFile("We have calculated the line total to be : " + Values("quit_quotedpricetotal"));
 }
 
-function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
+function GetCarriageProductFamilies() {
+    var strArr = "";
+    var counter = 0;
+    var qry = "select PrFa_ProductFamilyID from ProductFamily where prfa_iscarriage = 'Y'";
+    RunQuery(qry, function (qObj) {
+        if (counter > 0) {
+            strArr += ",";
+        }
+        strArr += qObj("PrFa_ProductFamilyID");
+        counter++;
+    });
+    return strArr;
+}
+
+function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction){
      writeToFile("***** CalculateQuoteHeaderProfitValues");
+    var carriageFamiliesStr = GetCarriageProductFamilies();
+    writeToFile("THESE ARE THE CARRIAGE FAMILIES : " + carriageFamiliesStr);
+    var profitValuesTotal = 0;
+    var lineTotalSum = 0;
+    var cogsSum = 0;
+    var profitValueCID = 0;
+    var sql = "SELECT SUM(quit_cost) as TotalCost,SUM(quit_quantity) as TotalQty,SUM(quit_linetotalnet) as TotalNet,";
+    sql += "SUM(quit_profitvalue) as TotalProfitValue,MAX(quit_ProfitValue_CID) as CID ";
+    sql += "from QuoteItems with (NOLOCK) where quit_orderquoteid=" + quoteID + " and quit_deleted IS NULL";
+    if (typeof whereClauseFunction === "function"){ 
+        sql += whereClauseFunction();
+    }
+    if(carriageFamiliesStr.length > 0){
+        sql += " and quit_productfamilyid NOT IN (" + carriageFamiliesStr +")";
+    }
+    writeToFile(sql);
+    RunQuery(sql, function(qry){
+        lineTotalSum = Number(qry("TotalNet"));
+        if(isNaN(lineTotalSum)){
+            lineTotalSum = 0;
+        }
+        profitValuesTotal = Number(qry("TotalProfitValue"));
+        if(isNaN(profitValuesTotal)){
+            profitValuesTotal = 0;
+        }
+        var totalCost = Number(qry("TotalCost"));
+        if(isNaN(totalCost)){
+            totalCost = 0;
+        }
+        var totalQty = Number(qry("TotalQty"));
+        if(isNaN(totalQty)){
+            totalQty = 0;
+        }
+        cogsSum = totalCost * totalQty;
+        profitValueCID = parseInt(coalesceZero(qry("CID"), 0));
+    });
+    var totalProfitMargin = 0;
+    if (lineTotalSum > 0) {
+        totalProfitMargin = ((profitValuesTotal / lineTotalSum) * 100).toFixed(2);
+    }
+
+    SetValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, profitValueCID);
+}
+
+/*
+function CalculateQuoteHeaderProfitValuesOLD(quoteID, whereClauseFunction) {
+     writeToFile("***** CalculateQuoteHeaderProfitValues");
+    var carriageFamiliesStr = GetCarriageProductFamilies();
+    writeToFile("THESE ARE THE CARRIAGE FAMILIES : " + carriageFamiliesStr);
     var profitValuesTotal = 0;
     var lineTotalSum = 0;
     var cogsSum = 0;
@@ -154,12 +228,15 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
     if (typeof whereClauseFunction === "function"){ 
         sql += whereClauseFunction();
     }
+     if(carriageFamiliesStr.length > 0){
+        sql += " and quit_productfamilyid NOT IN (" + carriageFamiliesStr +")";
+    }
     writeToFile(sql);
 
     RunQuery(sql, function (qry) {
 
-        var productFamily = qry("quit_productfamilyid");
-        if(productFamily != "23"){
+        //var productFamily = qry("quit_productfamilyid");
+        if(true){
             var lineProfitValue = Number(qry("quit_profitvalue"));
             if(isNaN(lineProfitValue)){
                 lineProfitValue = 0;
@@ -184,7 +261,7 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
 
     SetValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, profitValueCID);
 }
-
+//*/
 function SetValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, cid) {
      writeToFile("***** SetValuesInQuote");
      var a = typeof profitValuesTotal;
