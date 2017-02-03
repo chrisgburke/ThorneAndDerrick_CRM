@@ -330,7 +330,7 @@ function SetHeaderValuesInQuote(quoteID, gross, vat, discount, cid){
     var sql = "UPDATE Quotes SET ";
     sql += "quot_grosstotal=" + gross + ", quot_grosstotal_cid=" + cid + ", ";
     sql += "quot_discounttotal=" + discount + ", quot_discounttotal_cid=" + cid + ", ";
-    sql += "quot_tax=" + vat + ", quot_tax_cid=" + cid + " where quot_orderquoteid=" + quoteID;
+    sql += "quot_totalvat=" + vat + ", quot_totalvat_cid=" + cid + " where quot_orderquoteid=" + quoteID;
     writeToFile("**********");
     writeToFile(sql);
     try {
