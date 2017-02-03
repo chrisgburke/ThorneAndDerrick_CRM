@@ -23,6 +23,10 @@ function PerformLineCalculations(fam) {
     } else {
         line.productFamily = $("#_HIDDENquit_productfamilyidTEXT").val();
     }
+    line.isCarriage = false;
+    if(_.indexOf(window.carriageCodesLookup, line.productFamily) != -1){
+        line.isCarriage = true;
+    } 
     line.quantity = coalesceZero(crm.fields("quit_quantity").val(), 0);
     line.salesPrice = coalesceZero(crm.fields("quit_salesprice").val(), 2);
     line.costPrice = coalesceZero(crm.fields("quit_cost").val(), 2);
