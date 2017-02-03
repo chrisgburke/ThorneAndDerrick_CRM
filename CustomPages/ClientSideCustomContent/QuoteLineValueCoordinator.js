@@ -34,10 +34,10 @@ var quoteLineValueCoordinator = (function (carriageFamName) {
         _lineTotalProtected = 0.00;
         _currencySymbol = line.currencySymbol;
         _currencyID = line.currencyID;
-        _thisIsCarriage = false;
-        if(line.productFamily== _carriageFamName){
-            _thisIsCarriage = true;
-        }
+        _thisIsCarriage = line.isCarriage;
+        // if(line.productFamily== _carriageFamName){
+        //     _thisIsCarriage = true;
+        // }
     };
 
     var getCurrencyPrivate = function () {
