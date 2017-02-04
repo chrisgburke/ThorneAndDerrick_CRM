@@ -39,15 +39,26 @@ function RunQuery(sqlString, processFn) {
     }
 }
 
+function LOgOutActionCodes() {
+    writeToFile('_actionid= ' + FormValues('_actionid') + ' _HIDDEN_BEENTHERE =' + FormValues('_HIDDEN_BEENTHERE') + ' NextAction =' + FormValues('NextAction'));
+}
 //*************************
 // Entity : QuoteItems 
 // Script : CalculateLine 
 //*************************
+
+//this function makes sure the TS won't run if it's invoked from the Customisation screen:
+function okToRun() {
+    return (FormValues('_actionid') != "832");
+}
+
 function QuoteItems_CalculateLine_InsertRecord() {
     try {
-        writeToFile("***** Insert Record");
+        if (okToRun()) {
+            writeToFile("***** Insert Record");
+            OnInsertOrUpdate(false);
+        }
 
-        OnInsertOrUpdate(false);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -55,7 +66,9 @@ function QuoteItems_CalculateLine_InsertRecord() {
 
 function QuoteItems_CalculateLine_PostInsertRecord() {
     try {
-        OnLineDeleteOrAfterInsert(WhereClause, false);
+        if (okToRun()) {
+            OnLineDeleteOrAfterInsert(WhereClause, false);
+        }
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -63,18 +76,20 @@ function QuoteItems_CalculateLine_PostInsertRecord() {
 
 function QuoteItems_CalculateLine_UpdateRecord() {
     try {
-         writeToFile("***** Update Record");
+        if (okToRun()) {
+            writeToFile("***** Update Record");
 
-         var profitValue = Values("quit_profitvalue");
-         var profitMargin = Values("quit_profitmargin");
-         var vatAmt = Values("quit_vatamount");
-         var quotedPriceTotalNet = Values("quit_linetotalnet");
-         var lineTotalGross = (parseFloat(quotedPriceTotalNet) + parseFloat(vatAmt)).toFixed(2);
-         var discount = Values("quit_itemlinediscount");
+            var profitValue = Values("quit_profitvalue");
+            var profitMargin = Values("quit_profitmargin");
+            var vatAmt = Values("quit_vatamount");
+            var quotedPriceTotalNet = Values("quit_linetotalnet");
+            var lineTotalGross = (parseFloat(quotedPriceTotalNet) + parseFloat(vatAmt)).toFixed(2);
+            var discount = Values("quit_itemlinediscount");
 
-         forceValuesIntoDatabase(WhereClause, profitValue, profitMargin, lineTotalGross, vatAmt, discount);
-         writeToFile("The profit value after update is " + Values("quit_profitvalue"));
-        OnInsertOrUpdate(true);
+            forceValuesIntoDatabase(WhereClause, profitValue, profitMargin, lineTotalGross, vatAmt, discount);
+            writeToFile("The profit value after update is " + Values("quit_profitvalue"));
+            OnInsertOrUpdate(true);
+        }
     } catch (error) {
         writeToFile("ERROR: " + error.message);
     }
@@ -82,7 +97,7 @@ function QuoteItems_CalculateLine_UpdateRecord() {
 
 function QuoteItems_CalculateLine_DeleteRecord() {
     try {
-         writeToFile("***** Delete Record");
+        writeToFile("***** Delete Record");
         OnLineDeleteOrAfterInsert(WhereClause, true);
     } catch (error) {
         writeToFile("ERROR: " + error.message);
@@ -90,7 +105,7 @@ function QuoteItems_CalculateLine_DeleteRecord() {
 }
 
 function OnInsertOrUpdate(doHeader) {
-     writeToFile("***** OnInsertOrUpdate");
+    writeToFile("***** OnInsertOrUpdate");
 
     var quoteID = Values("quit_orderquoteid");
     CalculateLineValues();
@@ -100,7 +115,7 @@ function OnInsertOrUpdate(doHeader) {
     }
 }
 
-function forceValuesIntoDatabase(whereClause, profitValue, profitMargin, lineTotalGross, vatAmount, discount){
+function forceValuesIntoDatabase(whereClause, profitValue, profitMargin, lineTotalGross, vatAmount, discount) {
     var updateSql = "UPDATE QuoteItems SET quit_profitvalue=" + profitValue + ", quit_profitmargin=" + profitMargin;
     updateSql += ", quit_linetotalgross=" + lineTotalGross + ", quit_Vatamount=" + vatAmount;
     updateSql += ", quit_itemlinediscount=" + discount;
@@ -109,31 +124,31 @@ function forceValuesIntoDatabase(whereClause, profitValue, profitMargin, lineTot
     CRM.ExecSql(updateSql);
 }
 function OnLineDeleteOrAfterInsert(whereClause, isDeleting) {
-     writeToFile("***** OnLineDeleteOrAfterInsert");
-    
+    writeToFile("***** OnLineDeleteOrAfterInsert");
+
     var sql = "SELECT quit_orderquoteid FROM quoteitems with (NOLOCK) where " + whereClause;
     writeToFile(sql);
     var quoteID;
     RunQuery(sql, function (qry) {
         quoteID = qry("quit_orderquoteid");
     });
-    if(isDeleting){
+    if (isDeleting) {
         var quoteItemID = whereClause.split("=")[1];
-        var hCid = CalculateQuoteHeaderProfitValues(quoteID, function(){
+        var hCid = CalculateQuoteHeaderProfitValues(quoteID, function () {
             return " and quit_LineItemID <> " + quoteItemID;
         });
-        CalculateQuoteHeaderGrossAndDiscountValues(quoteID, hCid, function(){
-             return " and quit_LineItemID <> " + quoteItemID;
+        CalculateQuoteHeaderGrossAndDiscountValues(quoteID, hCid, function () {
+            return " and quit_LineItemID <> " + quoteItemID;
         });
-    }else {
-        
+    } else {
+
         var hCid = CalculateQuoteHeaderProfitValues(quoteID);
         CalculateQuoteHeaderGrossAndDiscountValues(quoteID, hCid);
     }
 }
 
 function CalculateLineValues() {
-     writeToFile("***** CalculateLineValues");
+    writeToFile("***** CalculateLineValues");
 
     var quantity = Values("quit_quantity");
     //writeToFile("Quantity = " + quantity);
@@ -180,8 +195,8 @@ function GetCarriageProductFamilies() {
     return strArr;
 }
 
-function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction){
-     writeToFile("***** CalculateQuoteHeaderProfitValues");
+function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction) {
+    writeToFile("***** CalculateQuoteHeaderProfitValues");
     var carriageFamiliesStr = GetCarriageProductFamilies();
     writeToFile("THESE ARE THE CARRIAGE FAMILIES : " + carriageFamiliesStr);
     var profitValuesTotal = 0;
@@ -191,28 +206,28 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction){
     var sql = "SELECT SUM(quit_cost) as TotalCost,SUM(quit_quantity) as TotalQty,SUM(quit_linetotalnet) as TotalNet,";
     sql += "SUM(quit_profitvalue) as TotalProfitValue,MAX(quit_ProfitValue_CID) as CID ";
     sql += "from QuoteItems with (NOLOCK) where quit_orderquoteid=" + quoteID + " and quit_deleted IS NULL";
-    if (typeof whereClauseFunction === "function"){ 
+    if (typeof whereClauseFunction === "function") {
         sql += whereClauseFunction();
     }
-    if(carriageFamiliesStr.length > 0){
-        sql += " and quit_productfamilyid NOT IN (" + carriageFamiliesStr +")";
+    if (carriageFamiliesStr.length > 0) {
+        sql += " and quit_productfamilyid NOT IN (" + carriageFamiliesStr + ")";
     }
     writeToFile(sql);
-    RunQuery(sql, function(qry){
+    RunQuery(sql, function (qry) {
         lineTotalSum = Number(qry("TotalNet"));
-        if(isNaN(lineTotalSum)){
+        if (isNaN(lineTotalSum)) {
             lineTotalSum = 0;
         }
         profitValuesTotal = Number(qry("TotalProfitValue"));
-        if(isNaN(profitValuesTotal)){
+        if (isNaN(profitValuesTotal)) {
             profitValuesTotal = 0;
         }
         var totalCost = Number(qry("TotalCost"));
-        if(isNaN(totalCost)){
+        if (isNaN(totalCost)) {
             totalCost = 0;
         }
         var totalQty = Number(qry("TotalQty"));
-        if(isNaN(totalQty)){
+        if (isNaN(totalQty)) {
             totalQty = 0;
         }
         cogsSum = totalCost * totalQty;
@@ -228,31 +243,31 @@ function CalculateQuoteHeaderProfitValues(quoteID, whereClauseFunction){
     return cidOut;
 }
 
-function CalculateQuoteHeaderGrossAndDiscountValues(quoteID, hCid, whereClauseFunction){
+function CalculateQuoteHeaderGrossAndDiscountValues(quoteID, hCid, whereClauseFunction) {
     writeToFile("** IN CalculateQuoteHeaderGrossAndDiscountValues and the cid value passed in is " + hCid);
 
     var grossAmount, vatAmount, discountAmount, cid;
     var sql = "select SUM(quit_linetotalgross) as Gross, SUM(quit_VATAmount) as VAT, SUM(quit_itemlinediscount) as Disc, MAX(quit_ProfitValue_CID) as CID ";
     sql += "from QuoteItems with (NOLOCK) where QuIt_orderquoteid = " + quoteID + " and quit_deleted IS NULL";
-    if (typeof whereClauseFunction === "function"){ 
+    if (typeof whereClauseFunction === "function") {
         sql += whereClauseFunction();
     }
     writeToFile(sql);
-    RunQuery(sql, function(qry){
+    RunQuery(sql, function (qry) {
         grossAmount = Number(qry("Gross"));
-        if(isNaN(grossAmount)){
+        if (isNaN(grossAmount)) {
             grossAmount = 0;
         }
         vatAmount = Number(qry("VAT"));
-        if(isNaN(vatAmount)){
+        if (isNaN(vatAmount)) {
             vatAmount = 0;
         }
         discountAmount = Number(qry("Disc"));
-        if(isNaN(discountAmount)){
+        if (isNaN(discountAmount)) {
             discountAmount = 0;
         }
         cid = parseInt(coalesceZero(qry("CID"), 0));
-    });   
+    });
     SetHeaderValuesInQuote(quoteID, grossAmount, vatAmount, discountAmount, hCid);
 }
 
@@ -305,8 +320,8 @@ function CalculateQuoteHeaderProfitValuesOLD(quoteID, whereClauseFunction) {
 }
 //*/
 function SetProfitValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, cid) {
-     writeToFile("***** SetProfitValuesInQuote");
-     writeToFile("..and cid is " + cid);
+    writeToFile("***** SetProfitValuesInQuote");
+    writeToFile("..and cid is " + cid);
 
     var sql = "UPDATE Quotes SET quot_profitvalue=" + profitValuesTotal + ", ";
     sql += "quot_profitvalue_cid=" + cid + ", ";
@@ -323,7 +338,7 @@ function SetProfitValuesInQuote(quoteID, profitValuesTotal, totalProfitMargin, c
     return cid;
 }
 
-function SetHeaderValuesInQuote(quoteID, gross, vat, discount, cid){
+function SetHeaderValuesInQuote(quoteID, gross, vat, discount, cid) {
     writeToFile("***** SetHeaderValuesInQuote");
     writeToFile("...and cid is " + cid);
 
