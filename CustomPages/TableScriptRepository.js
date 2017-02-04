@@ -39,7 +39,7 @@ function RunQuery(sqlString, processFn) {
     }
 }
 
-function LOgOutActionCodes() {
+function LogOutActionCodes() {
     writeToFile('_actionid= ' + FormValues('_actionid') + ' _HIDDEN_BEENTHERE =' + FormValues('_HIDDEN_BEENTHERE') + ' NextAction =' + FormValues('NextAction'));
 }
 //*************************
