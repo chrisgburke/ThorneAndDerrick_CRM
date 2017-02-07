@@ -1,17 +1,28 @@
 $(document).ready(function () {
+    
     var getProductDataURL = increaseCrmLib.MakeRequestString("GetCarriageCodes", "");
     increaseCrmLib.MakeSimpleAsyncAjaxRequest(getProductDataURL, function (data) {
         window.carriageCodesLookup = data.split(',');
     },
-        function (e) {
+    function (e) {
 
-        });
+    });
 
+    var fromWorkflow = crm.getArg("AUTOWORKFLOWED");
+    if(fromWorkflow == 'Y'){
+        increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Cancel", "UndoWorkflow");
+    }
     // setInterval(function(){
     //     refreshProfitValues();
     // }, 5000);
 });
 
+function UndoWorkflow(orig){
+
+    var url = increaseCrmLib.MakeRequestString("Quotes/NewQuoteWorkflow", "Cancel=523");
+     document.location.href = url;
+
+}
 /*
 function refreshProfitValues() {
     var key86 = crm.getArg("Key86");
