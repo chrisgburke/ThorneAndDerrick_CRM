@@ -13,7 +13,7 @@ $(document).ready(function(){
 
     var counter = 0;
 
-    crm.grids(0).rows(":gt(0)", true).cells().exec(function(index, key){
+    crm.grids(0).rows(":gt(0)", true).cells().exec(function (index, key) {
         counter = index;
         if(key.cellIndex == (copyColumnIndex + 1)){
           var rowIndex = $(key).parent().index() - 1;
@@ -75,14 +75,14 @@ function getDocumentDirectory(librID){
 }
 
 function QryStr(key, queryStr){
-var m=new String(queryStr).match(new RegExp("([?&;]" + key + "=)([^&]*)", "i"));
+  var m = String(queryStr).match(new RegExp("([?&;]" + key + "=)([^&]*)", "i"));
 
- return (m)?m[2]:"";
+   return (m)?m[2]:"";
 }
 
 
 function GetBaseFilePath(){
-    //call to server...
+    // call to server...
     var basePathUrl = increaseCrmLib.MakeRequestString("GetLibraryData", "basePath=Y");
     return increaseCrmLib.MakeSimpleAjaxRequest(basePathUrl);
 }
