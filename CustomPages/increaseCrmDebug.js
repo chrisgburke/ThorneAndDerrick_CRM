@@ -75,7 +75,7 @@ function LogErrorToScreen(message) {
 //This is the path and filename of the ASP log file
 function logFileName() {
     //return "D:\\CRM2017\\CRM2017\\Logs\\aspScriptLog.txt";
-	return "thing.txt";
+	return "IncreaseAspLog.txt";
 }
 
 function SleepMainThread(ms){
