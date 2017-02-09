@@ -1,5 +1,7 @@
 $(document).ready(function(){
 
+    SetCurrency();
+
     PerformLineCalculations();
 
     $("#quit_salesprice_CID").on("change", function(){
@@ -119,4 +121,12 @@ function setTextInDataSpan(spanID, newValue, convert) {
     var your_div = document.getElementById(spanID);
     var text_to_change = your_div.childNodes[0];
     text_to_change.nodeValue = newTextValue;
+}
+
+function SetCurrency(){
+    var currencyOnQuote = $("#_HIDDENquot_currency").val();
+    var setter = "#quit_salesprice_CID option[value=" + currencyOnQuote + "]";
+    $(setter).attr("selected", "selected");
+    $("#quit_salesprice_CID").prop("disabled", "disabled");
+    $("#_HIDDENquit_salesprice_CID").val(currencyOnQuote);
 }
