@@ -230,7 +230,8 @@ function CalculateLineValues() {
     //writeToFile("Quantity = " + quantity);
 
     var salesprice = Values("quit_salesprice");
-    var quoteCID = GetQuoteCurrency(Values("quit_orderquoteid"));//Values("quit_salesprice_cid");
+    var quoteCID = GetQuoteCurrency(Values("quit_orderquoteid"));
+    Values("quit_salesprice_cid") = quoteCID;
     //writeToFile("Sales Price = " + salesprice);
 
     var vatRate = GetVatRate(coalesceZero(Values("quit_vatrate"), 0));
