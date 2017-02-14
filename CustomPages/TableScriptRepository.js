@@ -113,7 +113,8 @@ function LogOutActionCodes() {
 
 //this function makes sure the TS won't run if it's invoked from the Customisation screen:
 function okToRun() {
-    return (FormValues('_actionid') != "832");
+    var actionID = FormValues('_actionid');
+    return (actionID != "832" && actionID != "1460");
 }
 
 function QuoteItems_CalculateLine_InsertRecord() {
