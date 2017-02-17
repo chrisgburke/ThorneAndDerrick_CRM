@@ -10,11 +10,19 @@ if(DebugOn())
 }
 var prodID = CleanQueryStringValue("prodID");
 var prodDescription = "";
+var prodCost = 0;
+var prodCostCID = 0;
+
 if(HasValue(prodID)){
-    var qry = "select prod_name from NewProduct WHERE Prod_ProductID =" + prodID;
+    var qry = "select prod_name, prod_Cost, prod_Cost_CID  from NewProduct WHERE Prod_ProductID =" + prodID;
     RunQuery(qry, function(qObj){
-        prodDescription = qObj("prod_name");
+        var prodDescriptionRaw = qObj("prod_name");
+        prodDescription = prodDescriptionRaw.replace(/"/g, '\\"');
+        prodCost = qObj("prod_cost");
+        prodCostCID = qObj("prod_Cost_CID");
     });
 }
-Response.Write(prodDescription);
+
+var jsonString = "{ \"name\":\"" + prodDescription + "\", \"cost\":" + prodCost + ", \"costCID\":" + prodCostCID +"}";
+Response.Write(jsonString);
 %>

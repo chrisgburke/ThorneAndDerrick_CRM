@@ -1,5 +1,5 @@
-$(document).ready(function () {
-   
+$(document).ready(function () {    
+    getNextLineNumber();
 });
 
 
@@ -22,10 +22,13 @@ function GetProductDescription(prodID) {
 
     var getProductDataURL = increaseCrmLib.MakeRequestString("GetProductDescription", "prodID=" + prodID);
     increaseCrmLib.MakeSimpleAsyncAjaxRequest(getProductDataURL, function (data) {
-        crm.fields('quit_description').val(data);
+        var dataObj =JSON.parse(data);
+        crm.fields('quit_description').val(dataObj.name);
+        crm.fields('quit_cost').val(dataObj.cost);
+        PerformLineCalculations();
     },
     function (e) {
-
+        alert(e.responseText);
     });
 }
 

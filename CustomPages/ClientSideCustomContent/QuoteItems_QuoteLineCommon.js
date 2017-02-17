@@ -130,3 +130,38 @@ function SetCurrency(){
     $("#quit_salesprice_CID").prop("disabled", "disabled");
     $("#_HIDDENquit_salesprice_CID").val(currencyOnQuote);
 }
+
+//**************************** NEXT LINE NUMBER STUFF  ************************/
+
+function getNextLineNumber() {
+    if ($("#quit_linenumber").length > 0) {
+
+        var lineNumber = $("#quit_linenumber").val();
+        if (isNaN(lineNumber) || lineNumber.length === 0) {
+
+            var nextLineNumber = calculateNextLineNumber();
+
+            $("#quit_linenumber").val(nextLineNumber);
+            $("#_HIDDENquit_linenumber").val(nextLineNumber);
+        }
+    }
+}
+
+function calculateNextLineNumber() {
+    var lineNumber = "";
+    var lineNumberInt = 0;
+    crm.grids(0).rows(":gt(0)", true).cells().exec(function (index, key) {
+        counter = index;
+        if (key.cellIndex == (0)) {
+
+            var rowIndex = $(key).parent().index() - 1;
+            lineNumber = this.getCellText(rowIndex, 0).trim();
+            var lineNumberTemp = parseInt(lineNumber);
+            if (lineNumberTemp > lineNumberInt) {
+                lineNumberInt = lineNumberTemp;
+            }
+        }
+    });
+
+    return ++lineNumberInt;
+}
