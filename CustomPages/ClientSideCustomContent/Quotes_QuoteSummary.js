@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    
+
     var getProductDataURL = increaseCrmLib.MakeRequestString("GetCarriageCodes", "");
     increaseCrmLib.MakeSimpleAsyncAjaxRequest(getProductDataURL, function (data) {
         window.carriageCodesLookup = data.split(',');
@@ -8,13 +8,13 @@ $(document).ready(function () {
 
     });
 
+    removeAjaxCacheFromButtonClickMethods();
+
     var fromWorkflow = crm.getArg("AUTOWORKFLOWED");
     if(fromWorkflow == 'Y'){
         increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Cancel", "UndoWorkflow");
     }
-    // setInterval(function(){
-    //     refreshProfitValues();
-    // }, 5000);
+    
 });
 
 function UndoWorkflow(orig){
@@ -23,31 +23,13 @@ function UndoWorkflow(orig){
      document.location.href = url;
 
 }
-/*
-function refreshProfitValues() {
-    var key86 = crm.getArg("Key86");
-    if (key86 != '') {
-        var _url = increaseCrmLib.MakeRequestString("GetQuoteHeaderValues", "quoteID=" + key86);
-        increaseCrmLib.MakeSimpleAsyncAjaxRequest(_url, function (data) {
-            if (data && data.length > 0) {
-                var vals = data.split('~');
-                if (vals.length == 2) {
-                    setHeaderValues("_Dataquot_profitvalue", vals[0]);
-                    setHeaderValues("_Dataquot_profitmargin", vals[1]);
-                }
-            }
-        },
-            function (e) {
 
-            });
-    }
-    //var profitValuesURL =
+function removeAjaxCacheFromButtonClickMethods(){
+    $(".er_buttonItem").each(function (i, o){
+        var onclick = $(this).attr("onclick");
+        if(onclick && onclick.length > 0 && onclick.indexOf("cache: true") != -1){
+            var newOnClick = onclick.replace("cache: true", "cache: false");
+            $(this).attr("onclick", newOnClick);
+        }
+    });
 }
-
-function setHeaderValues(spanID, newValue) {
-    var your_div = document.getElementById(spanID);
-    var text_to_change = your_div.childNodes[0];
-    text_to_change.nodeValue = newValue;
-}
-
-//*/
