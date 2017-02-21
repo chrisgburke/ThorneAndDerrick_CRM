@@ -1,0 +1,42 @@
+First : Move everything from js/custom to ClientSideCustomContent/Deps
+Next : replace crmwizard include file with accpaccrmajax in all the ASP pages.
+
+Then replace all CustomContent with the following:
+
+PERSON BOX LONG
+
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseCrmLib.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseFieldValidationHelper.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Person_PersonBoxLong.js'></script>
+
+
+Quote Summary:
+
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseCrmLib.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Quotes_QuoteSummary.js'></script>
+
+
+All Quote Item Screens:
+
+<script src='../CustomPages/ClientSideCustomContent/Deps/lodash.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseCrmLib.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/QuoteItems_QuoteItemsSummary.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/QuoteItems_QuoteLineCommon.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/QuoteLineValueCoordinator.js'></script>
+
+
+Library List:
+
+<script src='../CustomPages/ClientSideCustomContent/Deps/clipboard.min.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Deps/tooltipsy.min.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseCrmLib.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Documents_LibraryList.js'></script>
+
+
+Communication Detail Box:
+
+<script src='../CustomPages/ClientSideCustomContent/Deps/increaseCrmLib.js'></script>
+<script src='../CustomPages/ClientSideCustomContent/Communication_CustomCommunicationDetailBox.js'></script>
+
+
+

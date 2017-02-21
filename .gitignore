@@ -30,7 +30,9 @@
 ehthumbs.db
 Thumbs.db
 
-
+# Other Obscurities: #
+######################
+*.idp
 
 # Various Folders #
 ###################
@@ -38,6 +40,7 @@ ckeditor/
 CustomDotNet/
 CustomPages/Enbu/
 CustomPages - backup 120716/
+CustomPages/ClientSideCustomContent/Deps
 Examples/
 FileEmailScreen/
 FusionCharts/
