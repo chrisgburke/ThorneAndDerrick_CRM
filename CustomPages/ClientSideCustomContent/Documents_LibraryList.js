@@ -1,7 +1,7 @@
 $(document).ready(function(){
     
     var baseFilePath = GetBaseFilePath();
-
+    
     // var server = crm.installUrl().split('/')[3];
     // var loadCss = function(href) {
 	// 		var cssLink = $("<link rel='stylesheet' type='text/css' href='" + href + "'>");
@@ -23,7 +23,11 @@ $(document).ready(function(){
               var cellHtml = this.getCellHtml(rowIndex, fileNameColumnIndex).trim();
               var libraryid = extractLibraryId(cellHtml);
               var directory = getDocumentDirectory(libraryid);
-              crm.grids(0).setCellHtml(rowIndex, copyColumnIndex, "<a class='WEBLINK' target='EWAREVISITS' data-clipboard-text='" + PutOnClipboard(baseFilePath, directory, celltext) +"' href='javascript:CopyToClipboard()'>Copy</a>");
+              if(1 === 1){
+                crm.grids(0).setCellHtml(rowIndex, copyColumnIndex, "<a class='WEBLINK inc-fake-hover' target='EWAREVISITS' data-clipboard-text='" + PutOnClipboard(baseFilePath, directory, celltext) +"'>Copy</a>");
+              }else{
+                crm.grids(0).setCellHtml(rowIndex, copyColumnIndex, "<a class='WEBLINK' target='EWAREVISITS' data-clipboard-text='" + PutOnClipboard(baseFilePath, directory, celltext) +"' href='javascript:CopyToClipboard()'>Copy</a>");
+              }
           }
         }
     });
@@ -50,6 +54,10 @@ $(document).ready(function(){
         });
         
     });
+
+    $(".inc-fake-hover").hover(function(){
+        $(this).css('cursor', 'pointer');
+    })
 });
 
 
@@ -62,6 +70,7 @@ function PutOnClipboard(baseFilePath, libraryFolder, fileName){
 }
 
 function CopyToClipboard(){
+    var a = 1;
 //does nothing - just a placeholder....
 }
 
