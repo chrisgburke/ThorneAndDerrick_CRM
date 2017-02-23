@@ -2,6 +2,13 @@ var PersonBoxLongGlobal = {};
 
 $(document).ready(function () {
 
+    var inPopup = false;
+    //do we know if we're in a popup?
+    if (crm.getArg("PopupWin", crm.url()) === "Y") {
+        resizePopup();
+        inPopup = true;
+    }
+
     if ($("#persEmai_EmailAddressBusiness").length > 0) {
 
         PersonBoxLongGlobal.emailElement = "#persEmai_EmailAddressBusiness";
@@ -18,7 +25,11 @@ $(document).ready(function () {
         PersonBoxLongGlobal.emailFieldName = "emailaddressbusiness";
     }
 
-    increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Save", "ValidateAndSave");
+    if (!inPopup) {
+        increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Save", "ValidateAndSave");
+    } else {
+        increaseCrmLib.ReplaceSaveButtonClickMethod("Button_Save", "ValidateAndSavePopup");
+    }
     if ($(PersonBoxLongGlobal.emailElement).length > 0) {
         $(PersonBoxLongGlobal.emailElement).parent().after(increaseFieldValidationHelper.makeRequiredAsteriskFlag());
     }
@@ -28,15 +39,11 @@ $(document).ready(function () {
         $("#emai_emailaddressprivate").parent().parent().hide();
     }
 
-    //do we know if we're in a popup?
-    if (crm.getArg("PopupWin", crm.url()) === "Y") {
-        resizePopup();
-    }
 });
 
 function resizePopup() {
     var w = $(window), d = $(document), b = $('body');
-    window.resizeBy( ((screen.availWidth - w.width()) - 500), 0);
+    window.resizeBy(((screen.availWidth - w.width()) - 500), 0);
 }
 
 function ValidateAndSave(orig) {
@@ -50,6 +57,20 @@ function ValidateAndSave(orig) {
         crm.errorMessage("Validation Errors - Please correct the highlighted entries");
     }
 
+}
+
+function ValidateAndSavePopup(orig) {
+    crm.errorMessage("");
+    if (ValidateEmailValid(PersonBoxLongGlobal.emailAddressField)) {
+        standardValidateOK(PersonBoxLongGlobal.emailAddressField);
+        crm.errorMessage("");
+        var fnStr = orig.substring(11);
+        var savefn = new Function(fnStr);
+        savefn();
+    } else {
+        emailValidateError(PersonBoxLongGlobal.emailAddressField);
+        crm.errorMessage("Validation Errors - Please correct the highlighted entries");
+    }
 }
 
 function ValidateMandatoryFields() {
