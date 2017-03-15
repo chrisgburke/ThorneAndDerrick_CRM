@@ -2,7 +2,7 @@
 <!-- #include file ="crmconst.js" -->
 <!-- #include file ="increaseCrmDebug.js" -->
 <!-- #include file ="IncreaseCrmCommonServerFunctions.js" -->
-
+<!-- #include file = "json2.js" -->
 <%
 if(DebugOn())
 {
@@ -23,6 +23,21 @@ if(HasValue(prodID)){
     });
 }
 
-var jsonString = "{ \"name\":\"" + prodDescription + "\", \"cost\":" + prodCost + ", \"costCID\":" + prodCostCID +"}";
+var escapedDescription = prodDescription.replace(/\\n/g, "\\n")
+                                      .replace(/\\'/g, "\\'")
+                                      .replace(/\\"/g, '\\"')
+                                      .replace(/\\&/g, "\\&")
+                                      .replace(/\\r/g, "\\r")
+                                      .replace(/\\t/g, "\\t")
+                                      .replace(/\\b/g, "\\b")
+                                      .replace(/\\f/g, "\\f");
+var jsonObj = {
+    name : escapedDescription,
+    cost : prodCost,
+    costCID : prodCostCID
+};
+var jsonString = JSON.stringify(jsonObj);
+
+//var jsonString = "{ \"name\":\"" + escapedDescription + "\", \"cost\":" + prodCost + ", \"costCID\":" + prodCostCID +"}";
 Response.Write(jsonString);
 %>
