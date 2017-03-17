@@ -32,6 +32,19 @@ function UpdateOpportunity(oppoid, fieldName, fieldValue){
     }
     return success;
 }
+
+function GetTransitionStartPoint(caption, wfID){
+    var startPointID = 0;
+    try {
+        var sql = "select WkTr_TransitionID from vWorkflowTransitionsRules where WkRl_Caption ='" + caption + "' and vWorkflowTransitionsRules.WkTr_WorkflowId = " + wfID;
+        RunQuery(sql, function(qry){
+            startPointID = qry("WkTr_TransitionID");
+        });
+    } catch (error) {
+        
+    }
+    return startPointID;
+}
 /*
 function RunQuery(sqlString, processFn) {
     var qry = CRM.CreateQueryObj(sqlString);
