@@ -36,6 +36,7 @@ Thumbs.db
 
 # Various Folders #
 ###################
+node_modules/
 ckeditor/
 CustomDotNet/
 CustomPages/Enbu/
